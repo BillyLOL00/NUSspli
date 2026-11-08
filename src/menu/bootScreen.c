@@ -33,7 +33,6 @@
 #include <notifications.h>
 #include <queue.h>
 #include <renderer.h>
-#include <sanity.h>
 #include <ui.h>
 #include <updater.h>
 #include <utils.h>
@@ -86,7 +85,6 @@ static bool runConfig(void)
 static const BootStep bootSteps[] = {
     { "Loading Crypto...", "Crypto initialized!", "Couldn't initialize Crypto!", initCrypto, deinitCrypto },
     { "Loading MCP...", "MCP initialized!", "Couldn't initialize MCP!", runMcp, undoMcp },
-    { "Checking sanity...", "Sanity checked!", "No support for rebrands, use original NUSspli!", sanityCheck, NULL },
     { "Loading notification system...", "Notification system initialized!", "Couldn't initialize notification system!", initNotifications, deinitNotifications },
     { "Loading downloader...", "Downloader initialized!", "Couldn't initialize downloader!", initDownloader, deinitDownloader },
     { "Loading I/O thread...", "I/O thread initialized!", "Couldn't load I/O thread!", initIOThread, shutdownIOThread },
