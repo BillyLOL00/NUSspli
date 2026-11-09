@@ -62,6 +62,7 @@ extern "C"
 #define SCREEN_COLOR_GREEN        ((SDL_Color) { .r = 0x00, .g = 0xFF, .b = 0x00, .a = 0xFF })
 #define SCREEN_COLOR_D_BLUE       ((SDL_Color) { .r = 0x00, .g = 0x57, .b = 0x7F, .a = 0xFF })
 #define SCREEN_COLOR_BLUE         ((SDL_Color) { .r = 0x00, .g = 0xD6, .b = 0xFF, .a = 0xFF })
+#define SCREEN_COLOR_LIGHT_BLUE   ((SDL_Color) { .r = 0x87, .g = 0xCE, .b = 0xFA, .a = 0xFF })
 #define SCREEN_COLOR_LILA         ((SDL_Color) { .r = 0xFF, .g = 0x00, .b = 0xFF, .a = 0xFF })
 #define SCREEN_COLOR_BROWN        ((SDL_Color) { .r = 0x36, .g = 0x10, .b = 0x0A, .a = 0x0F })
 #define SCREEN_COLOR_GRAY         ((SDL_Color) { .r = 0x6A, .g = 0x6A, .b = 0x6A, .a = 0xFF })
@@ -118,5 +119,5 @@ extern "C"
 #endif
 
 #define startNewFrame()                              colorStartNewFrame(SCREEN_COLOR_BG_WHITE)
-#define textToFrame(line, column, str)               textToFrameCut(line, column, str, column == 0 ? SCREEN_WIDTH - (FONT_SIZE * 2) : 0)
-#define textToFrameColored(line, column, str, color) textToFrameColoredCut(line, column, str, color, column == 0 ? SCREEN_WIDTH - (FONT_SIZE * 2) : 0)
+#define textToFrame(line, column, str)               textToFrameColoredCut(line, column, str, SCREEN_COLOR_LIGHT_BLUE, column == 0 ? SCREEN_WIDTH - (FONT_SIZE * 2) : 0)
+#define textToFrameColored(line, column, str, color) textToFrameColoredCut(line, column, str, SCREEN_COLOR_LIGHT_BLUE, column == 0 ? SCREEN_WIDTH - (FONT_SIZE * 2) : 0)
