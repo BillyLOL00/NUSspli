@@ -50,17 +50,17 @@ static size_t filteredTitleEntrySize;
 static bool filterDirty;
 
 // tolower() folds ASCII only, so every non ASCII byte stays as it is: a
-// title with an accented capital keeps it while the search keeps its
-// lowercase form, and the strstr() below never sees a match. 10 of the
-// 3759 entries of the title database carry such a letter - POKKÉN
-// TOURNAMENT, Tsuppari Õzumõ, Kieta Õgon Kiseru - and were only findable
-// in the exact case typed.
+title with an accented capital keeps it while the search keeps its
+lowercase form, and the strstr() below never sees a match. 10 of the
+3759 entries of the title database carry such a letter - POKKÉN
+TOURNAMENT, Tsuppari Õzumõ, Kieta Õgon Kiseru - and were only findable
+in the exact case typed.
 //
 // A Latin-1 capital is the two bytes LATIN1_CAPS_LEAD (the lead of
 // U+0080..U+00FF) and LATIN1_CAPS_FIRST (U+00C0) to LATIN1_CAPS_LAST
 // (U+00DE), without LATIN1_MULTIPLY (U+00D7), which has no lowercase
 // form. Adding 32 to the second byte folds them and keeps every sequence
-// two bytes long, so no name is turned into another one.
+two bytes long, so no name is turned into another one.
 enum
 {
     LATIN1_CAPS_LEAD = 0xC3,
@@ -95,7 +95,7 @@ static void foldCase(char *str)
 
 // The old loop locals. enter resets them so every fresh opening of the
 // browser starts out like before, while pop-less paths (the finished
-// download behind the A button) keep the state like the old goto loop did.
+download behind the A button) keep the state like the old goto loop did.
 static TITLE_CATEGORY tab;
 static size_t cursor;
 static size_t pos;
@@ -289,7 +289,7 @@ static void renderTitleBrowserFrame()
         if(inQueue)
             textToFrameColoredCut(l, 10, toFrame, SCREEN_COLOR_YELLOW, (SCREEN_WIDTH - (FONT_SIZE << 1)) - (getSpaceWidth() * 11));
         else
-            textToFrameCut(l, 10, toFrame, (SCREEN_WIDTH - (FONT_SIZE << 1)) - (getSpaceWidth() * 11));
+            textToFrameColoredCut(l, 10, toFrame, SCREEN_COLOR_LIGHT_BLUE, (SCREEN_WIDTH - (FONT_SIZE << 1)) - (getSpaceWidth() * 11));
     }
 }
 
@@ -518,7 +518,7 @@ static void updateTitleBrowser()
 
 static const UIScreen titleBrowserScreen = {
     .name = "title browser",
-    .buttons = VPAD_BUTTON_A | VPAD_BUTTON_B | VPAD_BUTTON_UP | VPAD_BUTTON_DOWN | VPAD_BUTTON_LEFT | VPAD_BUTTON_RIGHT | VPAD_BUTTON_L | VPAD_BUTTON_R | VPAD_BUTTON_ZL | VPAD_BUTTON_ZR | VPAD_BUTTON_X | VPAD_BUTTON_Y | VPAD_BUTTON_PLUS | VPAD_BUTTON_MINUS,
+    .buttons = VPAD_BUTTON_A | VPAD_BUTTON_B | VPAD_BUTTON_UP | VPAD_BUTTON_DOWN | VPAD_BUTTON_LEFT | VPAD_BUTTON_RIGHT | VPAD_BUTTON_L | VPAD_BUTTON_R | VPAD_BUTTON_ZL | VPAD_BUTTON_ZR | VPAD_BUTTON_PLUS | VPAD_BUTTON_MINUS | VPAD_BUTTON_X | VPAD_BUTTON_Y,
     .enter = enterTitleBrowser,
     .update = updateTitleBrowser,
     .render = renderTitleBrowserFrame,
