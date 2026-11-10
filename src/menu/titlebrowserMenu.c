@@ -51,8 +51,7 @@
 static TitleEntry **filteredTitleEntries;
 static size_t filteredTitleEntrySize;
 static bool filterDirty;
-static void *selectionSoundBuffer;
-static Mix_Music *selectionSound;
+static Mix_Chunk *selectionSound;
 
 // tolower() folds ASCII only, so every non ASCII byte stays as it is: a
 // title with an accented capital keeps it while the search keeps its
@@ -102,36 +101,33 @@ static void playTitleSelectionSound()
 {
     if(selectionSound == NULL)
     {
-        size_t size = readFile(ROMFS_PATH "audio/select.mp3", &selectionSoundBuffer);
-        if(selectionSoundBuffer == NULL || size == 0)
+        void *buffer = NULL;
+        size_t size = readFile(ROMFS_PATH "audio/select.mp3", &buffer);
+        if(buffer == NULL || size == 0)
         {
-            if(selectionSoundBuffer != NULL)
-            {
-                MEMFreeToDefaultHeap(selectionSoundBuffer);
-                selectionSoundBuffer = NULL;
-            }
+            if(buffer != NULL)
+                MEMFreeToDefaultHeap(buffer);
             return;
         }
 
-        SDL_RWops *rw = SDL_RWFromMem(selectionSoundBuffer, size);
+        SDL_RWops *rw = SDL_RWFromMem(buffer, (int)size);
         if(rw == NULL)
         {
-            MEMFreeToDefaultHeap(selectionSoundBuffer);
-            selectionSoundBuffer = NULL;
+            MEMFreeToDefaultHeap(buffer);
             return;
         }
 
-        selectionSound = Mix_LoadMUS_RW(rw, true);
+        selectionSound = Mix_LoadWAV_RW(rw, true);
+        MEMFreeToDefaultHeap(buffer);
         if(selectionSound == NULL)
-        {
-            MEMFreeToDefaultHeap(selectionSoundBuffer);
-            selectionSoundBuffer = NULL;
             return;
-        }
+
+        Mix_VolumeChunk(selectionSound, SDL_MIX_MAXVOLUME * 0.15);
     }
 
-    Mix_VolumeMusic(SDL_MIX_MAXVOLUME * 0.15);
-    Mix_PlayMusic(selectionSound, 0);
+    // Play this as a channel effect so background music can continue on
+    // the separate music channel.
+    Mix_PlayChannel(-1, selectionSound, 0);
 }
 
 // The old loop locals. enter resets them so every fresh opening of the
