@@ -136,7 +136,7 @@ static void playTitleSelectionSound()
 
 // The old loop locals. enter resets them so every fresh opening of the
 // browser starts out like before, while pop-less paths (the finished
-download behind the A button) keep the state like the old goto loop did.
+// download behind the A button) keep the state like the old goto loop did.
 static TITLE_CATEGORY tab;
 static size_t cursor;
 static size_t pos;
