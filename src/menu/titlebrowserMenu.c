@@ -97,37 +97,33 @@ static void foldCase(char *str)
     }
 }
 
-static void playTitleSelectionSound()
+static void loadTitleSelectionSound()
 {
-    if(selectionSound == NULL)
+    if(selectionSound != NULL)
+        return;
+
+    void *buffer = NULL;
+    size_t size = readFile(ROMFS_PATH "audio/select.wav", &buffer);
+    if(buffer == NULL || size == 0)
     {
-        void *buffer = NULL;
-        size_t size = readFile(ROMFS_PATH "audio/select.mp3", &buffer);
-        if(buffer == NULL || size == 0)
-        {
-            if(buffer != NULL)
-                MEMFreeToDefaultHeap(buffer);
-            return;
-        }
-
-        SDL_RWops *rw = SDL_RWFromMem(buffer, (int)size);
-        if(rw == NULL)
-        {
+        if(buffer != NULL)
             MEMFreeToDefaultHeap(buffer);
-            return;
-        }
-
-        selectionSound = Mix_LoadWAV_RW(rw, true);
-        MEMFreeToDefaultHeap(buffer);
-        if(selectionSound == NULL)
-            return;
-
-        Mix_VolumeChunk(selectionSound, SDL_MIX_MAXVOLUME * 0.15);
+        return;
     }
 
-    // Play this as a channel effect so background music can continue on
-    // the separate music channel.
-    Mix_PlayChannel(-1, selectionSound, 0);
+    SDL_RWops *rw = SDL_RWFromMem(buffer, (int)size);
+    if(rw != NULL)
+        selectionSound = Mix_LoadWAV_RW(rw, true);
+
+    MEMFreeToDefaultHeap(buffer);
+    if(selectionSound != NULL)
+        Mix_VolumeChunk(selectionSound, SDL_MIX_MAXVOLUME * 0.15);
+}
+
+static void playTitleSelectionSound()
+{
+    if(selectionSound != NULL)
+        Mix_PlayChannel(-1, selectionSound, 0);
 }
 
 // The old loop locals. enter resets them so every fresh opening of the
@@ -239,10 +235,17 @@ static void enterTitleBrowser(void *param)
 {
     (void)param;
     resetTitleBrowser();
+    loadTitleSelectionSound();
 }
 
 static void leaveTitleBrowser()
 {
+    if(selectionSound != NULL)
+    {
+        Mix_FreeChunk(selectionSound);
+        selectionSound = NULL;
+    }
+
     if(filteredTitleEntries != NULL)
     {
         MEMFreeToDefaultHeap(filteredTitleEntries);
