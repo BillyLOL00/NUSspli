@@ -33,10 +33,13 @@
 #include <menu/utils.h>
 #include <queue.h>
 #include <renderer.h>
+#include <romfs.h>
 #include <state.h>
 #include <titles.h>
 #include <ui.h>
 #include <utils.h>
+
+#include <SDL2/SDL_mixer.h>
 
 #pragma GCC diagnostic ignored "-Wundef"
 #include <coreinit/mcp.h>
@@ -48,6 +51,8 @@
 static TitleEntry **filteredTitleEntries;
 static size_t filteredTitleEntrySize;
 static bool filterDirty;
+static void *selectionSoundBuffer;
+static Mix_Music *selectionSound;
 
 // tolower() folds ASCII only, so every non ASCII byte stays as it is: a
 // title with an accented capital keeps it while the search keeps its
@@ -93,9 +98,45 @@ static void foldCase(char *str)
     }
 }
 
+static void playTitleSelectionSound()
+{
+    if(selectionSound == NULL)
+    {
+        size_t size = readFile(ROMFS_PATH "audio/select.mp3", &selectionSoundBuffer);
+        if(selectionSoundBuffer == NULL || size == 0)
+        {
+            if(selectionSoundBuffer != NULL)
+            {
+                MEMFreeToDefaultHeap(selectionSoundBuffer);
+                selectionSoundBuffer = NULL;
+            }
+            return;
+        }
+
+        SDL_RWops *rw = SDL_RWFromMem(selectionSoundBuffer, size);
+        if(rw == NULL)
+        {
+            MEMFreeToDefaultHeap(selectionSoundBuffer);
+            selectionSoundBuffer = NULL;
+            return;
+        }
+
+        selectionSound = Mix_LoadMUS_RW(rw, true);
+        if(selectionSound == NULL)
+        {
+            MEMFreeToDefaultHeap(selectionSoundBuffer);
+            selectionSoundBuffer = NULL;
+            return;
+        }
+    }
+
+    Mix_VolumeMusic(SDL_MIX_MAXVOLUME * 0.15);
+    Mix_PlayMusic(selectionSound, 0);
+}
+
 // The old loop locals. enter resets them so every fresh opening of the
 // browser starts out like before, while pop-less paths (the finished
-// download behind the A button) keep the state like the old goto loop did.
+download behind the A button) keep the state like the old goto loop did.
 static TITLE_CATEGORY tab;
 static size_t cursor;
 static size_t pos;
@@ -300,6 +341,7 @@ static void updateTitleBrowser()
 
     if(vpad.trigger & VPAD_BUTTON_A && filteredTitleEntrySize) // The filter can match nothing
     {
+        playTitleSelectionSound();
         const TitleEntry *entry = filteredTitleEntries[cursor + pos];
         if(!predownloadMenu(entry, NUSDEV_NONE)) // entry is initialised
         {
